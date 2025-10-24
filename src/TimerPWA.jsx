@@ -661,9 +661,9 @@ export default function TimerPWA() {
               >
                 <ArrowLeft size={24} />
               </button>
-              {!isFinished && !pomodoroMode && (
+              {!pomodoroMode && (
                 <button
-                  onClick={togglePause}
+                  onClick={isFinished ? resetTimer : togglePause}
                   onTouchStart={() => handleButtonTouchStart('toggle')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
@@ -678,7 +678,7 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label={isRunning ? 'Pausa' : 'Riprendi'}
+                  aria-label={isFinished ? 'Riavvia' : (isRunning ? 'Pausa' : 'Riprendi')}
                 >
                   {isRunning ? <Pause size={24} /> : <Play size={24} />}
                 </button>

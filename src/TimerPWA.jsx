@@ -481,9 +481,21 @@ export default function TimerPWA() {
     const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return timeString.split(':').map((part, index, array) => (
+        <span key={index}>
+          {part}
+          {index < array.length - 1 && <span className="timer-colon">:</span>}
+        </span>
+      ));
     }
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const timeString = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return timeString.split(':').map((part, index, array) => (
+      <span key={index}>
+        {part}
+        {index < array.length - 1 && <span className="timer-colon">:</span>}
+      </span>
+    ));
   };
 
   return (
@@ -617,7 +629,7 @@ export default function TimerPWA() {
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className={`font-light tracking-wider transition-colors ${
+                <span className={`timer-display font-light tracking-wider transition-colors ${
                   isLandscape ? 'text-4xl' : 'text-5xl'
                 } ${
                   isFinished 
@@ -630,7 +642,7 @@ export default function TimerPWA() {
               <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${
                 isLandscape ? 'pt-16' : 'pt-20'
               }`}>
-                <span className={`text-sm font-light ${
+                <span className={`timer-display text-sm font-light ${
                   isFinished 
                     ? 'text-red-400' 
                     : isDarkMode ? 'text-gray-400' : 'text-gray-500'

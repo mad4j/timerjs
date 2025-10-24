@@ -8,6 +8,9 @@
     <meta name="theme-color" content="#000000" />
     <link rel="apple-touch-icon" href="/timer-icon.png" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <title>Timer PWA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -17,6 +20,17 @@
       }
       .animate-fade-in {
         animation: fade-in 0.3s ease-out;
+      }
+      .timer-display {
+        font-family: 'Roboto Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+        font-feature-settings: 'tnum';
+        letter-spacing: -0.02em;
+      }
+      .timer-colon {
+        font-family: 'Roboto', Arial, sans-serif;
+        font-size: 0.8em;
+        margin: 0 -0.05em;
+        font-weight: normal;
       }
     </style>
   </head>

@@ -1,0 +1,24 @@
+{
+  "name": "Timer PWA",
+  "short_name": "Timer",
+  "description": "Progressive Web App per la gestione del tempo",
+  "start_url": "/timerjs/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/timerjs/timer-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/timerjs/timer-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

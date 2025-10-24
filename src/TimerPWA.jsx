@@ -17,6 +17,8 @@ export default function TimerPWA() {
   const [isBreak, setIsBreak] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [activeButton, setActiveButton] = useState(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const endTimeRef = useRef(null);
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
@@ -34,6 +36,31 @@ export default function TimerPWA() {
     } catch (error) {
       console.error('Errore haptic feedback:', error);
     }
+  };
+
+  // Button touch handlers to prevent sticky active states on mobile
+  const handleButtonTouchStart = (buttonId) => {
+    setActiveButton(buttonId);
+  };
+
+  const handleButtonTouchEnd = () => {
+    // Clear active state after a short delay to allow for visual feedback
+    setTimeout(() => {
+      setActiveButton(null);
+    }, 150);
+  };
+
+  const handleButtonTouchCancel = () => {
+    setActiveButton(null);
+  };
+
+  // Get button classes based on device type and state
+  const getButtonClasses = (buttonId, baseClasses, pressedScale = 'scale-90', hoverScale = 'hover:scale-110') => {
+    const isPressed = activeButton === buttonId;
+    const scaleClass = isPressed ? pressedScale : (!isTouchDevice ? hoverScale : '');
+    const hoverClasses = !isTouchDevice ? (isDarkMode ? 'hover:bg-white hover:text-gray-900' : 'hover:bg-black hover:text-white') : '';
+    
+    return `${baseClasses} ${scaleClass} ${hoverClasses}`;
   };
 
   // Swipe gesture handlers
@@ -97,9 +124,23 @@ export default function TimerPWA() {
     { label: '20m', seconds: 1200 },
     { label: '30m', seconds: 1800 },
     { label: '1h', seconds: 3600 },
-    { label: '1.5m', seconds: 5400 },
+    { label: '1½h', seconds: 5400 },
     { label: '2h', seconds: 7200 }
   ];
+
+  // Detect touch device
+  useEffect(() => {
+    const checkTouchDevice = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    
+    checkTouchDevice();
+    window.addEventListener('resize', checkTouchDevice);
+    
+    return () => {
+      window.removeEventListener('resize', checkTouchDevice);
+    };
+  }, []);
 
   // Detect online/offline status
   useEffect(() => {
@@ -458,11 +499,20 @@ export default function TimerPWA() {
           )}
           <button
             onClick={cycleNotificationMode}
-            className={`w-10 h-10 border transition-all duration-200 flex items-center justify-center rounded-full active:scale-90 hover:scale-110 ${
-              isDarkMode 
-                ? 'border-gray-600 hover:border-gray-400 text-white' 
-                : 'border-gray-300 hover:border-black text-black'
-            }`}
+            onTouchStart={() => handleButtonTouchStart('notification')}
+            onTouchEnd={handleButtonTouchEnd}
+            onTouchCancel={handleButtonTouchCancel}
+            className={getButtonClasses(
+              'notification',
+              `w-10 h-10 border transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                isDarkMode 
+                  ? 'border-gray-600 text-white' 
+                  : 'border-gray-300 text-black'
+              }`,
+              'scale-90',
+              'hover:scale-110'
+            )}
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             aria-label="Cambia notifica"
           >
             {getNotificationIcon()}
@@ -482,11 +532,20 @@ export default function TimerPWA() {
             <div className="mb-8 flex justify-center">
               <button
                 onClick={startPomodoro}
-                className={`px-8 py-4 border-2 transition-all duration-200 rounded-full active:scale-95 hover:scale-105 font-light tracking-wide ${
-                  isDarkMode
-                    ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                    : 'border-black text-black hover:bg-black hover:text-white'
-                }`}
+                onTouchStart={() => handleButtonTouchStart('pomodoro')}
+                onTouchEnd={handleButtonTouchEnd}
+                onTouchCancel={handleButtonTouchCancel}
+                className={getButtonClasses(
+                  'pomodoro',
+                  `px-8 py-4 border-2 transition-all duration-200 rounded-full font-light tracking-wide select-none focus:outline-none ${
+                    isDarkMode
+                      ? 'border-white text-white'
+                      : 'border-black text-black'
+                  }`,
+                  'scale-95',
+                  'hover:scale-105'
+                )}
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
               >
                 MODALITÀ POMODORO
               </button>
@@ -497,11 +556,20 @@ export default function TimerPWA() {
                 <button
                   key={preset.label}
                   onClick={() => startTimer(preset.seconds)}
-                  className={`aspect-square border-2 transition-all duration-200 flex items-center justify-center text-xl font-light tracking-wide rounded-2xl active:scale-95 hover:scale-105 ${
-                    isDarkMode
-                      ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                      : 'border-black text-black hover:bg-black hover:text-white'
-                  }`}
+                  onTouchStart={() => handleButtonTouchStart(`preset-${preset.label}`)}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    `preset-${preset.label}`,
+                    `aspect-square border-2 transition-all duration-200 flex items-center justify-center text-xl font-light tracking-wide rounded-2xl select-none focus:outline-none ${
+                      isDarkMode
+                        ? 'border-white text-white'
+                        : 'border-black text-black'
+                    }`,
+                    'scale-95',
+                    'hover:scale-105'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                 >
                   {preset.label}
                 </button>
@@ -575,11 +643,20 @@ export default function TimerPWA() {
             <div className={`flex gap-6 ${isLandscape ? 'flex-col' : 'mb-8'}`}>
               <button
                 onClick={pomodoroMode ? stopPomodoro : goBackToSelection}
-                className={`w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full active:scale-90 hover:scale-110 ${
-                  isDarkMode
-                    ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                    : 'border-black text-black hover:bg-black hover:text-white'
-                }`}
+                onTouchStart={() => handleButtonTouchStart('back')}
+                onTouchEnd={handleButtonTouchEnd}
+                onTouchCancel={handleButtonTouchCancel}
+                className={getButtonClasses(
+                  'back',
+                  `w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                    isDarkMode
+                      ? 'border-white text-white'
+                      : 'border-black text-black'
+                  }`,
+                  'scale-90',
+                  'hover:scale-110'
+                )}
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Torna indietro"
               >
                 <ArrowLeft size={24} />
@@ -587,11 +664,20 @@ export default function TimerPWA() {
               {!isFinished && !pomodoroMode && (
                 <button
                   onClick={togglePause}
-                  className={`w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full active:scale-90 hover:scale-110 ${
-                    isDarkMode
-                      ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                      : 'border-black text-black hover:bg-black hover:text-white'
-                  }`}
+                  onTouchStart={() => handleButtonTouchStart('toggle')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'toggle',
+                    `w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode
+                        ? 'border-white text-white'
+                        : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                   aria-label={isRunning ? 'Pausa' : 'Riprendi'}
                 >
                   {isRunning ? <Pause size={24} /> : <Play size={24} />}
@@ -600,11 +686,20 @@ export default function TimerPWA() {
               {!pomodoroMode && (
                 <button
                   onClick={resetTimer}
-                  className={`w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full active:scale-90 hover:scale-110 ${
-                    isDarkMode
-                      ? 'border-white text-white hover:bg-white hover:text-gray-900'
-                      : 'border-black text-black hover:bg-black hover:text-white'
-                  }`}
+                  onTouchStart={() => handleButtonTouchStart('reset')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'reset',
+                    `w-16 h-16 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode
+                        ? 'border-white text-white'
+                        : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
                   aria-label="Reset"
                 >
                   <RotateCcw size={24} />

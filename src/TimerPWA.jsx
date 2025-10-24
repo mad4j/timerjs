@@ -11,7 +11,6 @@ export default function TimerPWA() {
   const [pausedTimeLeft, setPausedTimeLeft] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
-  const [isLandscape, setIsLandscape] = useState(false);
   const [pomodoroMode, setPomodoroMode] = useState(false);
   const [pomodoroSession, setPomodoroSession] = useState(1);
   const [isBreak, setIsBreak] = useState(false);
@@ -157,21 +156,7 @@ export default function TimerPWA() {
     };
   }, []);
 
-  // Detect orientation
-  useEffect(() => {
-    const checkOrientation = () => {
-      setIsLandscape(window.innerWidth > window.innerHeight);
-    };
 
-    checkOrientation();
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-
-    return () => {
-      window.removeEventListener('resize', checkOrientation);
-      window.removeEventListener('orientationchange', checkOrientation);
-    };
-  }, []);
 
   // Detect system dark mode preference
   useEffect(() => {
@@ -540,7 +525,7 @@ export default function TimerPWA() {
         onTouchEnd={initialTime > 0 ? () => { onTouchEnd(); onTouchEndVertical(); } : undefined}
       >
         {initialTime === 0 ? (
-          <div className={`w-full animate-fade-in ${isLandscape ? 'max-w-5xl' : 'max-w-2xl'}`}>
+          <div className="w-full animate-fade-in max-w-2xl">
             <div className="mb-8 flex justify-center">
               <button
                 onClick={startPomodoro}
@@ -563,7 +548,7 @@ export default function TimerPWA() {
               </button>
             </div>
             
-            <div className={`grid gap-4 ${isLandscape ? 'grid-cols-6' : 'grid-cols-3'}`}>
+            <div className="grid gap-4 grid-cols-3">
               {timerPresets.map((preset) => (
                 <button
                   key={preset.label}
@@ -589,11 +574,9 @@ export default function TimerPWA() {
             </div>
           </div>
         ) : (
-          <div className={`w-full flex items-center justify-center animate-fade-in ${
-            isLandscape ? 'flex-row gap-16 max-w-6xl' : 'flex-col max-w-md'
-          }`}>
+          <div className="w-full flex flex-col items-center justify-center animate-fade-in max-w-md">
             {pomodoroMode && (
-              <div className={`${isLandscape ? 'order-first' : 'mb-6'} text-center`}>
+              <div className="mb-6 text-center">
                 <div className={`text-sm font-light mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Sessione {pomodoroSession}
                 </div>
@@ -604,34 +587,32 @@ export default function TimerPWA() {
             )}
             
             <div 
-              className={`relative cursor-pointer ${isLandscape ? 'w-56 h-56' : 'w-64 h-64 mb-12'}`}
+              className="relative cursor-pointer w-64 h-64 mb-12"
               onClick={() => !isFinished && !pomodoroMode && togglePause()}
             >
-              <svg className={`transform -rotate-90 ${isLandscape ? 'w-56 h-56' : 'w-64 h-64'}`}>
+              <svg className="transform -rotate-90 w-64 h-64">
                 <circle
-                  cx={isLandscape ? "112" : "128"}
-                  cy={isLandscape ? "112" : "128"}
-                  r={isLandscape ? "100" : "120"}
+                  cx="128"
+                  cy="128"
+                  r="120"
                   stroke={isDarkMode ? '#374151' : '#f0f0f0'}
                   strokeWidth="8"
                   fill="none"
                 />
                 <circle
-                  cx={isLandscape ? "112" : "128"}
-                  cy={isLandscape ? "112" : "128"}
-                  r={isLandscape ? "100" : "120"}
+                  cx="128"
+                  cy="128"
+                  r="120"
                   stroke={isDarkMode ? '#ffffff' : '#000000'}
                   strokeWidth="8"
                   fill="none"
-                  strokeDasharray={`${2 * Math.PI * (isLandscape ? 100 : 120)}`}
-                  strokeDashoffset={`${2 * Math.PI * (isLandscape ? 100 : 120) * (1 - smoothProgress / 100)}`}
+                  strokeDasharray={`${2 * Math.PI * 120}`}
+                  strokeDashoffset={`${2 * Math.PI * 120 * (1 - smoothProgress / 100)}`}
                   style={{ transition: 'none' }}
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className={`timer-display font-light tracking-wider transition-colors ${
-                  isLandscape ? 'text-4xl' : 'text-5xl'
-                } ${
+                <span className={`timer-display font-light tracking-wider transition-colors text-5xl ${
                   isFinished 
                     ? 'text-red-500 animate-pulse' 
                     : isDarkMode ? 'text-white' : 'text-black'
@@ -639,9 +620,7 @@ export default function TimerPWA() {
                   {formatTime(timeLeft)}
                 </span>
               </div>
-              <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${
-                isLandscape ? 'pt-16' : 'pt-20'
-              }`}>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-20">
                 <span className={`timer-display text-sm font-light ${
                   isFinished 
                     ? 'text-red-400' 
@@ -652,7 +631,7 @@ export default function TimerPWA() {
               </div>
             </div>
 
-            <div className={`flex gap-6 ${isLandscape ? 'flex-col' : 'mb-8'}`}>
+            <div className="flex gap-6 mb-8">
               <button
                 onClick={pomodoroMode ? stopPomodoro : goBackToSelection}
                 onTouchStart={() => handleButtonTouchStart('back')}

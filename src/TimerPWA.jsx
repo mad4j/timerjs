@@ -534,39 +534,50 @@ export default function TimerPWA() {
       >
         {initialTime === 0 ? (
           <div className="w-full animate-fade-in max-w-2xl">
-            <div className="mb-8 flex justify-center">
+            {/* Total Time Display and Start Button */}
+            <div className="flex flex-col items-center gap-4 mb-8">
               <button
-                onClick={startPomodoro}
-                onTouchStart={() => handleButtonTouchStart('pomodoro')}
+                onClick={() => {
+                  const totalTime = getTotalSeconds();
+                  if (totalTime > 0) {
+                    startTimer(totalTime);
+                  }
+                }}
+                disabled={getTotalSeconds() === 0}
+                onTouchStart={() => handleButtonTouchStart('start-total')}
                 onTouchEnd={handleButtonTouchEnd}
                 onTouchCancel={handleButtonTouchCancel}
                 className={getButtonClasses(
-                  'pomodoro',
-                  `px-8 py-4 border-2 transition-all duration-200 rounded-full font-light tracking-wide select-none focus:outline-none ${
-                    isDarkMode
-                      ? 'border-white text-white'
-                      : 'border-black text-black'
+                  'start-total',
+                  `px-12 py-6 border-2 transition-all duration-200 rounded-2xl text-3xl font-light tracking-wider timer-display select-none focus:outline-none ${
+                    getTotalSeconds() === 0
+                      ? isDarkMode 
+                        ? 'border-gray-700 text-gray-700 cursor-not-allowed' 
+                        : 'border-gray-300 text-gray-300 cursor-not-allowed'
+                      : isDarkMode
+                        ? 'border-white text-white'
+                        : 'border-black text-black'
                   }`,
                   'scale-95',
-                  'hover:scale-105'
+                  getTotalSeconds() === 0 ? '' : 'hover:scale-105'
                 )}
                 style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
               >
-                MODALITÀ POMODORO
+                {formatTime(getTotalSeconds())}
               </button>
             </div>
             
             {/* Time Setup Controls */}
             <div className="space-y-6 mb-8">
-              {/* Hours */}
+              {/* Seconds */}
               <div className="flex items-center justify-center gap-4">
                 <button
-                  onClick={() => adjustTime('hours', -5)}
-                  onTouchStart={() => handleButtonTouchStart('hours-minus-5')}
+                  onClick={() => adjustTime('seconds', -5)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-minus-5')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'hours-minus-5',
+                    'seconds-minus-5',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -574,17 +585,17 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Diminuisci ore di 5"
+                  aria-label="Diminuisci secondi di 5"
                 >
                   <ChevronsLeft size={20} />
                 </button>
                 <button
-                  onClick={() => adjustTime('hours', -1)}
-                  onTouchStart={() => handleButtonTouchStart('hours-minus-1')}
+                  onClick={() => adjustTime('seconds', -1)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-minus-1')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'hours-minus-1',
+                    'seconds-minus-1',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -592,23 +603,23 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Diminuisci ore di 1"
+                  aria-label="Diminuisci secondi di 1"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <div className={`w-32 text-center py-3 px-6 border-2 rounded-lg ${
                   isDarkMode ? 'border-white text-white' : 'border-black text-black'
                 }`}>
-                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>ORE</div>
-                  <div className="text-2xl font-light timer-display">{hours.toString().padStart(2, '0')}</div>
+                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>SECONDI</div>
+                  <div className="text-2xl font-light timer-display">{seconds.toString().padStart(2, '0')}</div>
                 </div>
                 <button
-                  onClick={() => adjustTime('hours', 1)}
-                  onTouchStart={() => handleButtonTouchStart('hours-plus-1')}
+                  onClick={() => adjustTime('seconds', 1)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-plus-1')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'hours-plus-1',
+                    'seconds-plus-1',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -616,17 +627,17 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Aumenta ore di 1"
+                  aria-label="Aumenta secondi di 1"
                 >
                   <ChevronRight size={20} />
                 </button>
                 <button
-                  onClick={() => adjustTime('hours', 5)}
-                  onTouchStart={() => handleButtonTouchStart('hours-plus-5')}
+                  onClick={() => adjustTime('seconds', 5)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-plus-5')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'hours-plus-5',
+                    'seconds-plus-5',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -634,7 +645,7 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Aumenta ore di 5"
+                  aria-label="Aumenta secondi di 5"
                 >
                   <ChevronsRight size={20} />
                 </button>
@@ -722,15 +733,15 @@ export default function TimerPWA() {
                 </button>
               </div>
 
-              {/* Seconds */}
+              {/* Hours */}
               <div className="flex items-center justify-center gap-4">
                 <button
-                  onClick={() => adjustTime('seconds', -5)}
-                  onTouchStart={() => handleButtonTouchStart('seconds-minus-5')}
+                  onClick={() => adjustTime('hours', -5)}
+                  onTouchStart={() => handleButtonTouchStart('hours-minus-5')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'seconds-minus-5',
+                    'hours-minus-5',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -738,17 +749,17 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Diminuisci secondi di 5"
+                  aria-label="Diminuisci ore di 5"
                 >
                   <ChevronsLeft size={20} />
                 </button>
                 <button
-                  onClick={() => adjustTime('seconds', -1)}
-                  onTouchStart={() => handleButtonTouchStart('seconds-minus-1')}
+                  onClick={() => adjustTime('hours', -1)}
+                  onTouchStart={() => handleButtonTouchStart('hours-minus-1')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'seconds-minus-1',
+                    'hours-minus-1',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -756,23 +767,23 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Diminuisci secondi di 1"
+                  aria-label="Diminuisci ore di 1"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <div className={`w-32 text-center py-3 px-6 border-2 rounded-lg ${
                   isDarkMode ? 'border-white text-white' : 'border-black text-black'
                 }`}>
-                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>SECONDI</div>
-                  <div className="text-2xl font-light timer-display">{seconds.toString().padStart(2, '0')}</div>
+                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>ORE</div>
+                  <div className="text-2xl font-light timer-display">{hours.toString().padStart(2, '0')}</div>
                 </div>
                 <button
-                  onClick={() => adjustTime('seconds', 1)}
-                  onTouchStart={() => handleButtonTouchStart('seconds-plus-1')}
+                  onClick={() => adjustTime('hours', 1)}
+                  onTouchStart={() => handleButtonTouchStart('hours-plus-1')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'seconds-plus-1',
+                    'hours-plus-1',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -780,17 +791,17 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Aumenta secondi di 1"
+                  aria-label="Aumenta ore di 1"
                 >
                   <ChevronRight size={20} />
                 </button>
                 <button
-                  onClick={() => adjustTime('seconds', 5)}
-                  onTouchStart={() => handleButtonTouchStart('seconds-plus-5')}
+                  onClick={() => adjustTime('hours', 5)}
+                  onTouchStart={() => handleButtonTouchStart('hours-plus-5')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    'seconds-plus-5',
+                    'hours-plus-5',
                     `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
                       isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
@@ -798,46 +809,33 @@ export default function TimerPWA() {
                     'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Aumenta secondi di 5"
+                  aria-label="Aumenta ore di 5"
                 >
                   <ChevronsRight size={20} />
                 </button>
               </div>
             </div>
 
-            {/* Total Time Display and Start Button */}
-            <div className="flex flex-col items-center gap-4">
-              <div className={`text-sm font-light ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                TEMPO TOTALE
-              </div>
+            {/* Pomodoro Button */}
+            <div className="flex justify-center">
               <button
-                onClick={() => {
-                  const totalTime = getTotalSeconds();
-                  if (totalTime > 0) {
-                    startTimer(totalTime);
-                  }
-                }}
-                disabled={getTotalSeconds() === 0}
-                onTouchStart={() => handleButtonTouchStart('start-total')}
+                onClick={startPomodoro}
+                onTouchStart={() => handleButtonTouchStart('pomodoro')}
                 onTouchEnd={handleButtonTouchEnd}
                 onTouchCancel={handleButtonTouchCancel}
                 className={getButtonClasses(
-                  'start-total',
-                  `px-12 py-6 border-2 transition-all duration-200 rounded-2xl text-3xl font-light tracking-wider timer-display select-none focus:outline-none ${
-                    getTotalSeconds() === 0
-                      ? isDarkMode 
-                        ? 'border-gray-700 text-gray-700 cursor-not-allowed' 
-                        : 'border-gray-300 text-gray-300 cursor-not-allowed'
-                      : isDarkMode
-                        ? 'border-white text-white'
-                        : 'border-black text-black'
+                  'pomodoro',
+                  `px-8 py-4 border-2 transition-all duration-200 rounded-full font-light tracking-wide select-none focus:outline-none ${
+                    isDarkMode
+                      ? 'border-white text-white'
+                      : 'border-black text-black'
                   }`,
                   'scale-95',
-                  getTotalSeconds() === 0 ? '' : 'hover:scale-105'
+                  'hover:scale-105'
                 )}
                 style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
               >
-                {formatTime(getTotalSeconds())}
+                MODALITÀ POMODORO
               </button>
             </div>
           </div>

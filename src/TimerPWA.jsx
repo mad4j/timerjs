@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Vibrate, ArrowLeft } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Vibrate, ArrowLeft, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react';
 
 export default function TimerPWA() {
   const [timeLeft, setTimeLeft] = useState(0);
@@ -18,6 +18,9 @@ export default function TimerPWA() {
   const [touchEnd, setTouchEnd] = useState(null);
   const [activeButton, setActiveButton] = useState(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
   const endTimeRef = useRef(null);
   const intervalRef = useRef(null);
   const animationRef = useRef(null);
@@ -112,20 +115,22 @@ export default function TimerPWA() {
     }
   };
 
-  const timerPresets = [
-    { label: '10s', seconds: 10 },
-    { label: '15s', seconds: 15 },
-    { label: '30s', seconds: 30 },
-    { label: '1m', seconds: 60 },
-    { label: '5m', seconds: 300 },
-    { label: '10m', seconds: 600 },
-    { label: '15m', seconds: 900 },
-    { label: '20m', seconds: 1200 },
-    { label: '30m', seconds: 1800 },
-    { label: '1h', seconds: 3600 },
-    { label: '1½h', seconds: 5400 },
-    { label: '2h', seconds: 7200 }
-  ];
+  // Calculate total time in seconds
+  const getTotalSeconds = () => {
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  // Increment/decrement handlers for time controls
+  const adjustTime = (unit, amount) => {
+    triggerHaptic([10]);
+    if (unit === 'hours') {
+      setHours(prev => Math.max(0, Math.min(23, prev + amount)));
+    } else if (unit === 'minutes') {
+      setMinutes(prev => Math.max(0, Math.min(59, prev + amount)));
+    } else if (unit === 'seconds') {
+      setSeconds(prev => Math.max(0, Math.min(59, prev + amount)));
+    }
+  };
 
   // Detect touch device
   useEffect(() => {
@@ -457,6 +462,9 @@ export default function TimerPWA() {
     setPomodoroMode(false);
     setPomodoroSession(1);
     setIsBreak(false);
+    setHours(0);
+    setMinutes(0);
+    setSeconds(0);
     endTimeRef.current = null;
   };
 
@@ -548,29 +556,289 @@ export default function TimerPWA() {
               </button>
             </div>
             
-            <div className="grid gap-4 grid-cols-3">
-              {timerPresets.map((preset) => (
+            {/* Time Setup Controls */}
+            <div className="space-y-6 mb-8">
+              {/* Hours */}
+              <div className="flex items-center justify-center gap-4">
                 <button
-                  key={preset.label}
-                  onClick={() => startTimer(preset.seconds)}
-                  onTouchStart={() => handleButtonTouchStart(`preset-${preset.label}`)}
+                  onClick={() => adjustTime('hours', -5)}
+                  onTouchStart={() => handleButtonTouchStart('hours-minus-5')}
                   onTouchEnd={handleButtonTouchEnd}
                   onTouchCancel={handleButtonTouchCancel}
                   className={getButtonClasses(
-                    `preset-${preset.label}`,
-                    `aspect-square border-2 transition-all duration-200 flex items-center justify-center text-xl font-light tracking-wide rounded-2xl select-none focus:outline-none ${
-                      isDarkMode
-                        ? 'border-white text-white'
-                        : 'border-black text-black'
+                    'hours-minus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
                     }`,
-                    'scale-95',
-                    'hover:scale-105'
+                    'scale-90',
+                    'hover:scale-110'
                   )}
                   style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci ore di 5"
                 >
-                  {preset.label}
+                  <ChevronsLeft size={20} />
                 </button>
-              ))}
+                <button
+                  onClick={() => adjustTime('hours', -1)}
+                  onTouchStart={() => handleButtonTouchStart('hours-minus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'hours-minus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci ore di 1"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <div className={`w-32 text-center py-3 px-6 border-2 rounded-lg ${
+                  isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                }`}>
+                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>ORE</div>
+                  <div className="text-2xl font-light timer-display">{hours.toString().padStart(2, '0')}</div>
+                </div>
+                <button
+                  onClick={() => adjustTime('hours', 1)}
+                  onTouchStart={() => handleButtonTouchStart('hours-plus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'hours-plus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta ore di 1"
+                >
+                  <ChevronRight size={20} />
+                </button>
+                <button
+                  onClick={() => adjustTime('hours', 5)}
+                  onTouchStart={() => handleButtonTouchStart('hours-plus-5')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'hours-plus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta ore di 5"
+                >
+                  <ChevronsRight size={20} />
+                </button>
+              </div>
+
+              {/* Minutes */}
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => adjustTime('minutes', -5)}
+                  onTouchStart={() => handleButtonTouchStart('minutes-minus-5')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'minutes-minus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci minuti di 5"
+                >
+                  <ChevronsLeft size={20} />
+                </button>
+                <button
+                  onClick={() => adjustTime('minutes', -1)}
+                  onTouchStart={() => handleButtonTouchStart('minutes-minus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'minutes-minus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci minuti di 1"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <div className={`w-32 text-center py-3 px-6 border-2 rounded-lg ${
+                  isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                }`}>
+                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>MINUTI</div>
+                  <div className="text-2xl font-light timer-display">{minutes.toString().padStart(2, '0')}</div>
+                </div>
+                <button
+                  onClick={() => adjustTime('minutes', 1)}
+                  onTouchStart={() => handleButtonTouchStart('minutes-plus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'minutes-plus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta minuti di 1"
+                >
+                  <ChevronRight size={20} />
+                </button>
+                <button
+                  onClick={() => adjustTime('minutes', 5)}
+                  onTouchStart={() => handleButtonTouchStart('minutes-plus-5')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'minutes-plus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta minuti di 5"
+                >
+                  <ChevronsRight size={20} />
+                </button>
+              </div>
+
+              {/* Seconds */}
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => adjustTime('seconds', -5)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-minus-5')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'seconds-minus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci secondi di 5"
+                >
+                  <ChevronsLeft size={20} />
+                </button>
+                <button
+                  onClick={() => adjustTime('seconds', -1)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-minus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'seconds-minus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Diminuisci secondi di 1"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <div className={`w-32 text-center py-3 px-6 border-2 rounded-lg ${
+                  isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                }`}>
+                  <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>SECONDI</div>
+                  <div className="text-2xl font-light timer-display">{seconds.toString().padStart(2, '0')}</div>
+                </div>
+                <button
+                  onClick={() => adjustTime('seconds', 1)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-plus-1')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'seconds-plus-1',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta secondi di 1"
+                >
+                  <ChevronRight size={20} />
+                </button>
+                <button
+                  onClick={() => adjustTime('seconds', 5)}
+                  onTouchStart={() => handleButtonTouchStart('seconds-plus-5')}
+                  onTouchEnd={handleButtonTouchEnd}
+                  onTouchCancel={handleButtonTouchCancel}
+                  className={getButtonClasses(
+                    'seconds-plus-5',
+                    `w-12 h-12 border-2 transition-all duration-200 flex items-center justify-center rounded-full select-none focus:outline-none ${
+                      isDarkMode ? 'border-white text-white' : 'border-black text-black'
+                    }`,
+                    'scale-90',
+                    'hover:scale-110'
+                  )}
+                  style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Aumenta secondi di 5"
+                >
+                  <ChevronsRight size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Total Time Display and Start Button */}
+            <div className="flex flex-col items-center gap-4">
+              <div className={`text-sm font-light ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                TEMPO TOTALE
+              </div>
+              <button
+                onClick={() => {
+                  const totalTime = getTotalSeconds();
+                  if (totalTime > 0) {
+                    startTimer(totalTime);
+                  }
+                }}
+                disabled={getTotalSeconds() === 0}
+                onTouchStart={() => handleButtonTouchStart('start-total')}
+                onTouchEnd={handleButtonTouchEnd}
+                onTouchCancel={handleButtonTouchCancel}
+                className={getButtonClasses(
+                  'start-total',
+                  `px-12 py-6 border-2 transition-all duration-200 rounded-2xl text-3xl font-light tracking-wider timer-display select-none focus:outline-none ${
+                    getTotalSeconds() === 0
+                      ? isDarkMode 
+                        ? 'border-gray-700 text-gray-700 cursor-not-allowed' 
+                        : 'border-gray-300 text-gray-300 cursor-not-allowed'
+                      : isDarkMode
+                        ? 'border-white text-white'
+                        : 'border-black text-black'
+                  }`,
+                  'scale-95',
+                  getTotalSeconds() === 0 ? '' : 'hover:scale-105'
+                )}
+                style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+              >
+                {formatTime(getTotalSeconds())}
+              </button>
             </div>
           </div>
         ) : (

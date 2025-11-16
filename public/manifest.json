@@ -1,7 +1,7 @@
 {
   "name": "Timer PWA",
   "short_name": "Timer",
-  "description": "Progressive Web App per la gestione del tempo",
+  "description": "PWA Timer",
   "start_url": "/timerjs/",
   "display": "standalone",
   "background_color": "#ffffff",
